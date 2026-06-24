@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+  FAILED
+}
+
+enum Genre {
+  COMEDY
+  THRILLER
+  DRAMA
+  HORROR
+  ANIMATED
+  ACTION
+  OTHERS
+}
+
+model Movie {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  genre       Genre      @default(OTHERS)
+  duration    Int
+  imagePath   String     @default("")
+  featured    Boolean    @default(false)       
+  showtimes   Showtime[]
+}
+
+model Theater {
+  id       String   @id @default(uuid())
+  name     String
+  location String
+  screens  Screen[]
+}
+
+model Screen {
+  id        String     @id @default(uuid())
+  name      String
+  theaterId String
+  theater   Theater    @relation(fields: [theaterId], references: [id])
+  seats     Seat[]
+  showtimes Showtime[]
+}
+
+model Seat {
+  id       String    @id @default(uuid())
+  row      String
+  number   Int
+  type     String    @default("SILVER") // Could also be an enum
+  screenId String
+  screen   Screen    @relation(fields: [screenId], references: [id])
+  bookings Booking[]
+}
+
+model Showtime {
+  id         String     @id @default(uuid())
+  startTime  DateTime
+  movieId    String
+  movie      Movie      @relation(fields: [movieId], references: [id])
+  screenId   String
+  screen     Screen     @relation(fields: [screenId], references: [id])
+  bookings   Booking[]
+  locks      SeatLock[]
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  firstName  String
+  lastName   String
+  password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  isActive   Boolean   @default(true)
+  imagePath  String    @default("")
+  isVerified Boolean   @default(false)
+  bookings   Booking[]
+}
+
+model Booking {
+  id         String        @id @default(uuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id])
+  showtimeId String
+  showtime   Showtime      @relation(fields: [showtimeId], references: [id])
+  seatId     String
+  seat       Seat          @relation(fields: [seatId], references: [id])
+  bookedAt   DateTime      @default(now())
+  status     BookingStatus @default(PENDING_PAYMENT)
+}
+
+model SeatLock {
+  id         String   @id @default(uuid())
+  seatId     String
+  showtimeId String
+  userId     String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  showtime   Showtime @relation(fields: [showtimeId], references: [id])
+}

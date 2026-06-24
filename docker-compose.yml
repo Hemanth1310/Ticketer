@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ticketer-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ticketer_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      target: development # Change to 'production' for live deployment
+    container_name: ticketer-backend
+    ports:
+      - "3008:3008"
+    volumes:
+      - ./backend:/app          # Hot-reload mapping
+      - /app/node_modules       # Anonymous volume for dependencies
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/ticketer_db?sslmode=disable"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+      # In dev, we don't use the Nginx stage, we use Vite directly
+    container_name: ticketer-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3008
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  pgdata:
