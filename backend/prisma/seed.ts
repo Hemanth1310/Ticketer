@@ -7,7 +7,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const rawDatabaseUrl = process.env.DATABASE_URL;
 
 if (!rawDatabaseUrl) {
-	throw new Error("DATABASE_URL is not set");
+  throw new Error("DATABASE_URL is not set");
 }
 
 const dbUrl = new URL(rawDatabaseUrl);
@@ -15,7 +15,7 @@ const sslMode = dbUrl.searchParams.get("sslmode");
 
 // Keep the current strict TLS behavior explicit to avoid pg v9 semantic changes.
 if (!sslMode || sslMode === "prefer" || sslMode === "require" || sslMode === "verify-ca") {
-	dbUrl.searchParams.set("sslmode", "verify-full");
+  dbUrl.searchParams.set("sslmode", "verify-full");
 }
 
 const connectionString = dbUrl.toString();
@@ -25,7 +25,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
 
-     await new Promise(resolve => setTimeout(resolve, 3000));
+  await new Promise(resolve => setTimeout(resolve, 3000));
   
   console.log('Clearing database...');
   await prisma.seatLock.deleteMany();
@@ -69,7 +69,7 @@ async function main() {
     { title: 'Super Mario Bros', genre: Genre.ANIMATED, duration: 92 },
   ].map(movie => prisma.movie.create({ data: movie })));
 
-  // 3. Create 10 Theaters, 5 Screens each (50 total), and 20 Seats per screen
+  // 3. Create 10 Theaters, 5 Screens each (50 total), and 100 Seats per screen
   for (let i = 1; i <= 10; i++) {
     const theater = await prisma.theater.create({
       data: {
@@ -86,15 +86,24 @@ async function main() {
         },
       });
 
-      // Create 20 seats per screen (2 rows of 10)
-      const rows = ['A', 'B'];
+      // Rows A to J
+      const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+      
       for (const row of rows) {
+        // Determine tier based on the row letter
+        let seatType = 'SILVER';
+        if (['A', 'B', 'C'].includes(row)) {
+          seatType = 'PLATINUM';
+        } else if (['D', 'E', 'F', 'G'].includes(row)) {
+          seatType = 'GOLD';
+        }
+
         for (let seatNum = 1; seatNum <= 10; seatNum++) {
           await prisma.seat.create({
             data: {
               row,
               number: seatNum,
-              type: row === 'A' ? 'GOLD' : 'SILVER',
+              type: seatType,
               screenId: screen.id,
             },
           });
