@@ -21,7 +21,8 @@ const Header = () => {
   }
 
   return (
-    <div className="flex-1 w-screen h-16  border-b-gray-300 border-b-2 flex items-center justify-between fixed top-0 left-0 z-100 pr-5 pl-5 font-mono ">
+    <div className="flex-1 w-screen h-16  border-b-gray-300 border-b-2 flex items-center justify-center fixed top-0 left-0 z-100 pr-5 pl-5 font-mono ">
+      <div className="container flex items-center justify-between">
        <div className='flex sm:hidden' onClick={()=>setIsMenuOpen(prev=>!prev)}>
             <Menu />
         </div>
@@ -70,6 +71,7 @@ const Header = () => {
       isOpen={isModalOpen}
       onClose={closeModal}
       />
+      </div>
     </div>
   )
 }
