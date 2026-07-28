@@ -1,17 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import useAllMoviesDataProvider from '../utils/allMoviesDataProvider'
 import Banner from '../components/layouts/Banner'
 import getImageUrl from '../utils/getImageURL'
 import { useNavigate } from 'react-router'
 import MovieSkeleton from '../components/layouts/MovieSkeleton'
 
-type Props = {}
 
-const Home = (props: Props) => {
+const Home = () => {
   const {
         data,
         featuredMovies,
-        moviesList,
         isLoading,
         isError,
         refetch
@@ -24,9 +22,10 @@ const Home = (props: Props) => {
     if(isLoading){
       return <MovieSkeleton/>
     }
-    if(1===1){
-      return <div className='w-full h-full flex items-center justify-center'>
-        Something Went Wrong. Please try to <span className='text-brand-primary' onClick={()=>refetch()}>Refetch.</span>
+    if(isError){
+     return <div className="w-full h-screen flex flex-col gap-5 font-mono italic text-gray-500 items-center justify-center text-3xl">
+        "Failed to load the page"
+        <span className='text-brand-primary' onMouseDown={() => refetch()}>Refetch</span>
       </div>
     }
   return (
