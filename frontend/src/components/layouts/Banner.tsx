@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { Movies } from '../../types'
 import getImageUrl from '../../utils/getImageURL'
+import { useNavigate } from 'react-router'
 
 type Props = {
     slides: Movies[]
@@ -9,7 +10,7 @@ type Props = {
 const Banner = ({slides}: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
-
+  const navigate = useNavigate()
   // 1. Automatic slideshow timer (changes slide every 5 seconds)
   useEffect(() => {
     if (!slides || slides.length === 0) return;
@@ -31,11 +32,14 @@ const Banner = ({slides}: Props) => {
   if (!slides || slides.length === 0) return null;
 
   const activeSlide = slides[currentIndex];
+  const handleMovieDetails=(movieID:string)=>{
+      navigate(`/movie/${movieID}`)
+    }
 
   return (
     <div
-      className={`w-full bg-gray-600 h-50 md:h-100 lg:h-100 flex flex-col items-center justify-center 
-        transition-all duration-1000 ease-linear relative overflow-hidden ${
+      className={`w-full bg-gray-600 h-50 md:h-100 lg:h-100 flex flex-col items-center rounded-xl justify-center 
+        transition-all duration-1000 ease-linear relative overflow-hidden cursor-pointer ${
         isFading ? 'opacity-0 scale-105' : 'opacity-100 scale-100'
       }`}
       style={{
@@ -45,10 +49,11 @@ const Banner = ({slides}: Props) => {
         backgroundSize: 'cover',
         backgroundPosition: '60% 20%',
       }}
+      onClick={()=>handleMovieDetails(activeSlide.id)}
     >
       {/* Title with subtle slide-up animation */}
       <h1
-        className={`text-2xl md:text-9xl text-white font-bold transition-all duration-500 transform ${
+        className={`text-2xl md:text-9xl text-mauve-200 font-bold transition-all duration-500 transform ${
           isFading ? 'translate-y-4 opacity-0' : 'translate-y-0 opacity-100'
         }`}
       >
