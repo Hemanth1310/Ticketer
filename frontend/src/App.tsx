@@ -4,6 +4,7 @@ import './App.css'
 import Header from './components/layouts/Header'
 import Home from './views/Home'
 import { ToastContainer } from 'react-toastify'
+import MovieDetails from './views/MovieDetails'
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
           <div className="min-h-full w-full rounded-2xl box-border container flex pt-5 pb-5">
               <Routes>
                 <Route path="/" element={<Home/>}></Route>
+                <Route path="/movie/:id" element={<MovieDetails/>}/>
               
               </Routes>
 
