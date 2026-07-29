@@ -73,7 +73,7 @@ router.get("/movieDetails/:id",async(req,res)=>{
 
       return res.json({
         payload:{
-          movie,
+          ...movie,
           theaterDetails:Array.from(theaterMap.values())
         }
       })
