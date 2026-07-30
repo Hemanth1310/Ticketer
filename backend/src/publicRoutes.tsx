@@ -36,45 +36,81 @@ router.get("/movieDetails/:id",async(req,res)=>{
                   theater:true
                 }
               }
-            }
+            },
+            orderBy: {
+              startTime: 'asc', 
+            },
           }
         }
       })
+
+
 
       if(!movieDetails){
         return res.status(404).json({error:"Movie not found"})
       }
 
-      const theaterMap = new Map()
+      const dateMap = new Map<string, Map<string, any>>();
+      const TIMEZONE = 'Europe/Berlin';
 
       movieDetails.showtimes.forEach((showtime)=>{
-        const {screen,...showtimeData} = showtime
-        const {theater, ...screenData} = screen
+       const { screen, ...showtimeData } = showtime;
+    const { theater, ...screenData } = screen;
 
-        if(!theaterMap.has(theater.id)){
-          theaterMap.set(theater.id,{
-            id: theater.id,
-            name: theater.name,
-            location: theater.location,
-            showtimes: [],
-          })
-        }
+    const dateObj = new Date(showtimeData.startTime);
 
-        theaterMap.get(theater.id).showtimes.push({
-          id: showtimeData.id,
-          startTime: showtimeData.startTime,
-          screen: {
-            id: screenData.id,
-            name: screenData.name,
-          },
-        })
+    // 1. Get YYYY-MM-DD specifically in CET/CEST
+    // Format: "2026-06-24"
+    const cetDateKey = dateObj.toLocaleDateString('en-CA', {
+      timeZone: TIMEZONE, // Enforces Central European Time
+    });
+
+    // 2. Format 24-hour CET time string for display (e.g. "18:30" or "18:30 CET")
+    const cetTimeLabel = dateObj.toLocaleTimeString('en-GB', {
+      timeZone: TIMEZONE,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false, // 24-hour format common in CET regions (e.g., "18:30")
+    });
+
+    if (!dateMap.has(cetDateKey)) {
+      dateMap.set(cetDateKey, new Map());
+    }
+
+    const theaterMapForDate = dateMap.get(cetDateKey)!;
+
+    if (!theaterMapForDate.has(theater.id)) {
+      theaterMapForDate.set(theater.id, {
+        id: theater.id,
+        name: theater.name,
+        location: theater.location,
+        showtimes: [],
+      });
+    }
+
+    theaterMapForDate.get(theater.id).showtimes.push({
+      id: showtimeData.id,
+      startTime: showtimeData.startTime,
+      timeLabel: `${cetTimeLabel} CET`, // Displays as "18:30 CET"
+      screen: {
+        id: screenData.id,
+        name: screenData.name,
+      },
+    });
       })
       const {showtimes, ...movie}=movieDetails
+
+      const datesArray = Array.from(dateMap.entries()).map(([date,theaters])=>({
+        date,
+        theaters:Array.from(theaters.values())
+
+      }))
+    
 
       return res.json({
         payload:{
           ...movie,
-          theaterDetails:Array.from(theaterMap.values())
+          dates:datesArray
         }
       })
     }catch(err){
