@@ -27,7 +27,7 @@ const Header = () => {
             <Menu />
         </div>
       <div className="h-full flex gap-2 justify-center items-center">
-        <Ticket size={38} color="red"/>
+        <Ticket size={38} color="#BE1A1A"/>
         <p className="text-xl">Tickter</p>
       </div>
       <div>
