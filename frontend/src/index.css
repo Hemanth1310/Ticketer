@@ -3,10 +3,10 @@
 @theme {
   --font-display: "Satoshi", "sans-serif";
   --breakpoint-3xl: 120rem;
-  --color-brand-primary: #F00;
-  --color-brand-secondary: #FFC7C4;
-  --color-brand-ternary: #FF928B;
-  --color-brand-forth: #FF928B;
+  --color-brand-primary: #BE1A1A;
+  --color-brand-secondary: #FD7979;
+  --color-brand-ternary: #FA6868;
+  --color-brand-forth: #FD7979;
 }
 
 @layer base {
