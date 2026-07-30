@@ -10,7 +10,7 @@ function App() {
 
   return (
   <BrowserRouter>
-    <div className='w-screen min-h-screen flex flex-col text-mist-900 bg-mist-50'>
+    <div className='w-screen min-h-screen flex flex-col text-mist-900 bg-mist-50 font-mono'>
       <Header/>
       <div className="mt-16 flex-1 w-full h-full flex gap-5 bg-mist-50 rounded-2xl justify-center">
           <div className="min-h-full w-full rounded-2xl box-border container flex pt-5 pb-5">
