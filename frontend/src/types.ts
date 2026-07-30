@@ -17,9 +17,10 @@ export interface ScreenInfo {
   name: string;
 }
 
-export interface GroupedShowtime {
+export interface ShowtimeInfo {
   id: string;
   startTime: string | Date;
+  timeLabel:string;
   screen: ScreenInfo;
 }
 
@@ -27,18 +28,24 @@ export interface TheaterWithShowtimes {
   id: string;
   name: string;
   location: string;
-  showtimes: GroupedShowtime[];
+  showtimes: ShowtimeInfo[];
+}
+
+export interface DateGroup {
+  date: string; // "YYYY-MM-DD"
+  theaters: TheaterWithShowtimes[];
 }
 
 export interface GroupedMovieDetails {
   id: string;
   title: string;
   description: string | null;
-  genre: Genre;
+  genre: string;
   duration: number;
   imagePath: string;
   featured: boolean;
-  theaters: TheaterWithShowtimes[];
+  dates: DateGroup[];
 }
+
 // 5. State/Prop wrapper (Nullable)
 export type MovieDetailsState = GroupedMovieDetails | null;
