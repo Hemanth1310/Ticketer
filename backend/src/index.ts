@@ -2,9 +2,11 @@
 import express from "express"
 import AuthRouter from './authRoutes.js'
 import PublicRoutes from './publicRoutes.js'
+import PrivateRoutes from './privateRoutes.js'
 import cors from 'cors'
 import cookieParser from "cookie-parser"
 import path from "path"
+import authenticationToken from "./utils/authMiddleware.js"
 const app = express()
 
 
@@ -35,6 +37,7 @@ app.use(cookieParser())
 
 
 app.use('/api/auth',AuthRouter)
+app.use('/api/private',authenticationToken, PrivateRoutes)
 app.use('/api/public',PublicRoutes)
 // app.get('/try',async(req, res)=>{
 //     return res.status(200).json({message:"helelow "})
