@@ -23,6 +23,7 @@ const hasAuthCookie = () =>
         .split(';')
         .some((cookie) => cookie.trim().startsWith('hasAuth='))
 
+
 export const AuthContext = createContext<AuthContextType>(defalutAuthContextType)
 
 const BASE_API_URL = import.meta.env.VITE_API_URL
@@ -36,8 +37,18 @@ export const AuthContextProivder = ({children}:{children:React.ReactNode})=>{
         setIsLoading(false)
     }
 
-    const logout = ()=>{
-        setUserDetails(null)
+    const logout = async()=>{
+        try{
+           await axios.get(`${BASE_API_URL}/api/private/logout`)
+           
+        }catch(err){
+             if(err instanceof AxiosError){
+                    console.log(err.response?.data?.error)
+                }else{
+                    console.log("Unexpected Error occured")
+                }
+        }
+         setUserDetails(null)
         setIsLoading(false)
     }
 
