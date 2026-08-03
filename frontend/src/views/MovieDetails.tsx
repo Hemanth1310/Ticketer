@@ -1,11 +1,29 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useMovieDetails } from "../utils/hooks/dataQueryHook";
 import MovieDetailsSkeleton from "../components/layouts/MovieDetailsSkeleton";
 import getImageUrl from "../utils/getImageURL";
+import AuthLayout from "../components/layouts/AuthLayout";
+import { useAuthContextData } from "../utils/useAuthContextData";
+import { useState } from "react";
 
 const MovieDetails = () => {
   const { id } = useParams();
   const { data, isError, isLoading, refetch } = useMovieDetails(id);
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const {userDetails} = useAuthContextData()
+    const navigate=useNavigate()
+  
+    const closeModal=() =>{
+      setIsModalOpen(false)
+    }
+
+    const handleSeatSelection = (id:string)=>{
+        if(!userDetails){
+            setIsModalOpen(true)
+        }else{
+            navigate(`/book-show-time/${id}`)
+        }
+    }
 
   if (isLoading) {
     return <MovieDetailsSkeleton />;
@@ -88,6 +106,7 @@ const MovieDetails = () => {
                     <button
                       key={st.id}
                       className="px-4 py-2 border border-brand-primary  rounded-lg hover:bg-brand-primary hover:text-white transition-colors text-sm font-semibold"
+                      onClick={()=>handleSeatSelection(st.id)}
                     >
                       {/* Render timeLabel ("06:30 PM") instead of the full Date */}
                       {st.timeLabel}
@@ -102,6 +121,10 @@ const MovieDetails = () => {
           </div>
         ))}
       </div>
+        <AuthLayout
+      isOpen={isModalOpen}
+      onClose={closeModal}
+      />
     </div>
   );
 };
