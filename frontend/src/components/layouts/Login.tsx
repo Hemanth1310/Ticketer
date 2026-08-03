@@ -5,7 +5,7 @@ import axios from '../../utils/authMiddleware'
 import { toast } from 'react-toastify'
 import { AxiosError } from 'axios'
 import { useAuthContextData } from '../../utils/useAuthContextData'
-import { useNavigate } from 'react-router'
+// import { useNavigate } from 'react-router'
 type Props = {
      toggleTo:(val:toggeler)=>void,
     onClose:()=>void
@@ -21,7 +21,7 @@ const Login = ({toggleTo, onClose}: Props) => {
     api:''
   })
   const {updateUserDetails} = useAuthContextData()
-  const navigate=useNavigate()
+  // const navigate=useNavigate()
 
 
   const handleLogin=async(formData:FormData)=>{
@@ -60,7 +60,7 @@ const Login = ({toggleTo, onClose}: Props) => {
             })
 
         updateUserDetails(parsedUserData.data)
-        navigate('/')
+        // navigate('/')
         onClose()
         
       
