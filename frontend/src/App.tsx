@@ -6,6 +6,7 @@ import Home from './views/Home'
 import { ToastContainer } from 'react-toastify'
 import MovieDetails from './views/MovieDetails'
 import ShowtimeBooking from './views/ShowtimeBooking'
+import ProtectedRoutes from './components/layouts/ProtectedRoutes'
 
 function App() {
 
@@ -18,7 +19,10 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home/>}></Route>
                 <Route path="/movie/:id" element={<MovieDetails/>}/>
+                <Route element={<ProtectedRoutes/>}>
                 <Route path ="/book-show-time/:id" element={<ShowtimeBooking/>}/>
+                </Route>
+                
               
               </Routes>
 
