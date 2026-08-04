@@ -19,7 +19,7 @@ function App() {
               <Route path="/movie/:id" element={<MovieDetails />} />
               <Route element={<ProtectedRoutes />}>
                 <Route
-                  path="/book-show-time/:id"
+                  path="/book-show-time/:name/:genre/:id"
                   element={<ShowtimeBooking />}
                 />
               </Route>
