@@ -21,7 +21,7 @@ const MovieDetails = () => {
         if(!userDetails){
             setIsModalOpen(true)
         }else{
-            navigate(`/book-show-time/${id}`)
+            navigate(`/book-show-time/${data?.title}/${data?.genre}/${id}`)
         }
     }
 
