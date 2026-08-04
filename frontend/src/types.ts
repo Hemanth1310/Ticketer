@@ -49,3 +49,24 @@ export interface GroupedMovieDetails {
 
 // 5. State/Prop wrapper (Nullable)
 export type MovieDetailsState = GroupedMovieDetails | null;
+
+export type Seat={
+    number: number;
+    id: string;
+    screenId: string;
+    type: string;
+    row: string;
+}
+
+export type ScreenWithSeats = {
+    theaterID:string;
+    seats: Seat[]
+} & ScreenInfo
+
+export type ShowTimeData = {
+      id: string;
+  startTime: string | Date,
+  movieId:string,
+  screenId:string,
+    screen:ScreenWithSeats
+} 
