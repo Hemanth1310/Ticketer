@@ -49,13 +49,14 @@ export interface GroupedMovieDetails {
 
 // 5. State/Prop wrapper (Nullable)
 export type MovieDetailsState = GroupedMovieDetails | null;
-
+export type SeatTypes = "SILVER" | "GOLD" | "PLATINUM"
 export type Seat={
     number: number;
     id: string;
     screenId: string;
-    type: string;
+    type: SeatTypes;
     row: string;
+    price: number;
 }
 
 export type ScreenWithSeats = {
@@ -64,9 +65,9 @@ export type ScreenWithSeats = {
 } & ScreenInfo
 
 export type ShowTimeData = {
-      id: string;
+  id: string;
   startTime: string | Date,
   movieId:string,
   screenId:string,
-    screen:ScreenWithSeats
+  screen:ScreenWithSeats
 } 
