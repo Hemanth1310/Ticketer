@@ -39,6 +39,12 @@ router.get("/logout", (req, res) => {
   res.status(200).json({ message: "Successfully Logged out" });
 });
 
+const SEAT_TYPE_MULTIPLIERS: Record<string, number> = {
+  SILVER: 1.0,    // Base price
+  GOLD: 1.25,     // 25% markup
+  PLATINUM: 1.6,  // 60% markup
+};
+
 router.get("/showtimes/:id",async(req,res)=>{
     const {id} = req.params
 
@@ -58,6 +64,20 @@ router.get("/showtimes/:id",async(req,res)=>{
                 }
             }
         })
+        if(!showtimes){
+            return res.status(404).json({error:'no shows found'})
+        }
+
+        const basePrice = Number(showtimes.basePrice || 10.00);
+        const seatsWithPrices = showtimes.screen.seats.map((seat)=>{
+            const multiplier = SEAT_TYPE_MULTIPLIERS[seat.type] || 1.0
+            const calculatedPrice = Number((basePrice*multiplier).toFixed(2))
+
+            return {
+                ...seat,
+                price:calculatedPrice
+            }
+        })
 
         const seatBookings = await prisma.booking.findMany({
             select:{
@@ -70,19 +90,23 @@ router.get("/showtimes/:id",async(req,res)=>{
 
         const seatLocks = await prisma.seatLock.findMany({
             where:{
-                showtimeId:id
+                showtimeId:id,
+                expiresAt: { gt: new Date() }
             },select:{
                 seatId:true
             }
         })
 
-        if(!showtimes){
-            return res.status(404).json({error:'no shows found'})
-        }
 
         return res.status(200).json({
             payload:{
-                showtimes,
+                showtimes:{
+                    ...showtimes,
+                    screen:{
+                        ...showtimes.screen,
+                        seats:seatsWithPrices
+                    }
+                },
                 seatBookings,
                 seatLocks
             }
