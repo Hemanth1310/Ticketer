@@ -66,10 +66,10 @@ const Login = ({toggleTo, onClose}: Props) => {
       
     }catch(err){
        if(err instanceof AxiosError){
-                setErrors(prev=>({...prev, apiResponse:err.response?.data.error}))
+                setErrors(prev=>({...prev, api:err.response?.data.error}))
                 return
             }
-            setErrors(prev=>({...prev, apiResponse:'Unexpected error occured.'}))
+            setErrors(prev=>({...prev, api:'Unexpected error occured.'}))
     }
   }
   return (
