@@ -1,8 +1,7 @@
 import "dotenv/config";
-import { PrismaClient, Genre, BookingStatus } from '../generated/prisma/client.js';
+import { PrismaClient, Genre, SeatType } from '../generated/prisma/client.js';
 import * as bcrypt from 'bcryptjs';
 import { PrismaPg } from "@prisma/adapter-pg";
-
 
 const rawDatabaseUrl = process.env.DATABASE_URL;
 
@@ -13,7 +12,7 @@ if (!rawDatabaseUrl) {
 const dbUrl = new URL(rawDatabaseUrl);
 const sslMode = dbUrl.searchParams.get("sslmode");
 
-// Keep the current strict TLS behavior explicit to avoid pg v9 semantic changes.
+// Keep current strict TLS behavior explicit to avoid pg v9 semantic changes.
 if (!sslMode || sslMode === "prefer" || sslMode === "require" || sslMode === "verify-ca") {
   dbUrl.searchParams.set("sslmode", "verify-full");
 }
@@ -24,9 +23,8 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
   console.log('Clearing database...');
   await prisma.seatLock.deleteMany();
   await prisma.booking.deleteMany();
@@ -39,24 +37,22 @@ async function main() {
 
   console.log('Seeding data...');
 
-  // 1. Create 5 Users
+  // 1. Create 5 Users in Bulk
   const hashedPassword = await bcrypt.hash('pass@123', 10);
-  const users = await Promise.all(
-    ['Alice', 'Bob', 'Charlie', 'David', 'Eve'].map((name) =>
-      prisma.user.create({
-        data: {
-          firstName: name,
-          lastName: 'User',
-          email: `${name.toLowerCase()}@example.com`,
-          password: hashedPassword,
-          isVerified: true,
-        },
-      })
-    )
-  );
+  const userNames = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
 
-  // 2. Create 10 Movies
-  const movies = await Promise.all([
+  await prisma.user.createMany({
+    data: userNames.map((name) => ({
+      firstName: name,
+      lastName: 'User',
+      email: `${name.toLowerCase()}@example.com`,
+      password: hashedPassword,
+      isVerified: true,
+    })),
+  });
+
+  // 2. Create 10 Movies in Bulk
+  const movieData = [
     { title: 'Inception', genre: Genre.ACTION, duration: 148 },
     { title: 'The Hangover', genre: Genre.COMEDY, duration: 100 },
     { title: 'The Conjuring', genre: Genre.HORROR, duration: 112 },
@@ -67,9 +63,14 @@ async function main() {
     { title: 'Avengers: Endgame', genre: Genre.ACTION, duration: 181 },
     { title: 'Parasite', genre: Genre.THRILLER, duration: 132 },
     { title: 'Super Mario Bros', genre: Genre.ANIMATED, duration: 92 },
-  ].map(movie => prisma.movie.create({ data: movie })));
+  ];
+
+  await prisma.movie.createMany({ data: movieData });
+  const movies = await prisma.movie.findMany();
 
   // 3. Create 10 Theaters, 5 Screens each (50 total), and 100 Seats per screen
+  const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+
   for (let i = 1; i <= 10; i++) {
     const theater = await prisma.theater.create({
       data: {
@@ -86,35 +87,45 @@ async function main() {
         },
       });
 
-      // Rows A to J
-      const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-      
+      // Prepare seats array for bulk insertion (100 seats per screen)
+      const seatsToInsert: Array<{
+        row: string;
+        number: number;
+        type: SeatType;
+        screenId: string;
+      }> = [];
+
       for (const row of rows) {
-        // Determine tier based on the row letter
-        let seatType = 'SILVER';
+        // Assign SeatType Enum instead of plain string
+        let seatType: SeatType = SeatType.SILVER;
+
         if (['A', 'B', 'C'].includes(row)) {
-          seatType = 'PLATINUM';
+          seatType = SeatType.PLATINUM; 
         } else if (['D', 'E', 'F', 'G'].includes(row)) {
-          seatType = 'GOLD';
+          seatType = SeatType.GOLD;
         }
 
         for (let seatNum = 1; seatNum <= 10; seatNum++) {
-          await prisma.seat.create({
-            data: {
-              row,
-              number: seatNum,
-              type: seatType,
-              screenId: screen.id,
-            },
+          seatsToInsert.push({
+            row,
+            number: seatNum,
+            type: seatType,
+            screenId: screen.id,
           });
         }
       }
 
-      // 4. Create a Showtime for each screen with a random movie
+      // ⚡ Single SQL INSERT query for all 100 seats
+      await prisma.seat.createMany({
+        data: seatsToInsert,
+      });
+
+      // 4. Create a Showtime for each screen
       const randomMovie = movies[Math.floor(Math.random() * movies.length)];
       await prisma.showtime.create({
         data: {
-          startTime: new Date(Date.now() + (i * j * 3600000)), // Spread out times
+          startTime: new Date(Date.now() + i * j * 3600000), // Spread out times
+          basePrice: 12.00,
           movieId: randomMovie.id,
           screenId: screen.id,
         },
