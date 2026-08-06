@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import AuthLayout from "./AuthLayout"
 import { useAuthContextData } from "../../utils/useAuthContextData"
 import {ChevronDown, ChevronUp, CircleUserRound, LogOut, Menu, Ticket} from 'lucide-react'
+import { useNavigate } from "react-router"
 // import { NavLink } from "react-router-dom"
 const Header = () => {
   const {userDetails,logout} = useAuthContextData()
@@ -9,6 +10,7 @@ const Header = () => {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false)
   const dropDownRef = useRef<HTMLDivElement>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const navigate = useNavigate()
   
 
   const closeModal=() =>{
@@ -26,7 +28,7 @@ const Header = () => {
        <div className='flex sm:hidden' onClick={()=>setIsMenuOpen(prev=>!prev)}>
             <Menu />
         </div>
-      <div className="h-full flex gap-2 justify-center items-center">
+      <div className="h-full flex gap-2 justify-center items-center" onClick={()=>navigate('/')}>
         <Ticket size={38} color="#BE1A1A"/>
         <p className="text-xl">Tickter</p>
       </div>
