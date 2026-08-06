@@ -5,6 +5,7 @@ import getImageUrl from "../utils/getImageURL";
 import AuthLayout from "../components/layouts/AuthLayout";
 import { useAuthContextData } from "../utils/useAuthContextData";
 import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -17,18 +18,18 @@ const MovieDetails = () => {
       setIsModalOpen(false)
     }
 
-    const handleSeatSelection = (id:string)=>{
+    const handleSeatSelection = (sid:string)=>{
         if(!userDetails){
             setIsModalOpen(true)
         }else{
-            navigate(`/book-show-time/${data?.title}/${data?.genre}/${id}`)
+            navigate(`/book-show-time/${id}/${sid}`)
         }
     }
 
   if (isLoading) {
     return <MovieDetailsSkeleton />;
   }
-  if (isError || !data) {
+  if (isError || !data ||!id) {
     return (
       <div className="w-full h-screen flex flex-col gap-5 font-mono italic text-gray-500 items-center justify-center text-3xl">
         "Failed to load the page"
@@ -77,6 +78,9 @@ const MovieDetails = () => {
           </div>
         </div>
       </div>
+       <div className="mt-5 flex items-center hover:underline cursor-pointer" onClick={()=>navigate('/')}>
+        <ChevronLeft size={24} />
+        View All Movies</div>
       <div className="mt-10 w-full flex flex-col gap-10">
         {/* {data.theaterDetails.map((theater)=>
         <div key={theater.id} className='w-full '>
@@ -89,6 +93,7 @@ const MovieDetails = () => {
             </div>
             
         </div>)} */}
+
 
         {data.dates.map((dateData) => (
           <div>
