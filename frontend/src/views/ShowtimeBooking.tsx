@@ -3,29 +3,32 @@ import { useNavigate, useParams } from 'react-router'
 import type { Seat, ShowTimeData } from '../types'
 import Loading from '../components/layouts/Loading'
 import axios from '../utils/authMiddleware'
-import { Clapperboard } from 'lucide-react'
+import { ChevronLeft, Clapperboard } from 'lucide-react'
+import { useMovieDetails } from '../utils/hooks/dataQueryHook'
+import getImageUrl from '../utils/getImageURL'
 
 const BASE_API_URL = import.meta.env.VITE_API_URL
 
 const ShowtimeBooking = () => {
-    const {name,genre,id} = useParams()
+    const {mid,id} = useParams()
+    const { data, isError, isLoading } = useMovieDetails(mid);
     const [showtimeData, setShowTimeData] = useState<ShowTimeData|null>(null)
     const [seatLocks, setSeatLocks] = useState<string[]>([])
     const [seatBookings, setSeatBookings] = useState<string[]>([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [isError, setIsError] = useState(false)
+    const [isCompLoading, setIsCompLoading] = useState(false)
+    const [isCompError, setIsCompError] = useState(false)
     const [seatPicks, setSeatPicks] = useState<string[]>([])
     const [totalSum, setTotalSum] = useState(0)
-    const [seatSplits, setSeatSplit] = useState({
+    const [seatSplits, setSeatSplit] = useState({   
         "SILVER":[],
         "GOLD":[],
         "PLATINUM":[]
     })
-     
+     const navigate=useNavigate()
     useEffect(()=>{
         const fetchSeatInfo=async()=>{
-            setIsLoading(true)
-            setIsError(false)
+            setIsCompLoading(true)
+            setIsCompError(false)
             try{
                 const {data} = await axios.get(`${BASE_API_URL}/api/private/showtimes/${id}`)
 
@@ -43,9 +46,9 @@ const ShowtimeBooking = () => {
 
                 console.log(data)
             }catch{
-                setIsError(true)
+                setIsCompError(true)
             }
-            setIsLoading(false)
+            setIsCompLoading(false)
         }
         fetchSeatInfo()
     },[id])
@@ -70,10 +73,10 @@ const ShowtimeBooking = () => {
         return sortedSeats
     },[showtimeData])
 
-    if (isLoading) {
+    if (isLoading || isCompLoading) {
         return <Loading />;
       }
-      if (isError || !showtimeData) {
+      if (isError || !showtimeData || isCompError ||!data) {
         return (
           <div className="w-full h-screen flex flex-col gap-5 font-mono italic text-gray-500 items-center justify-center text-3xl">
             "Failed to load the page"
@@ -123,14 +126,24 @@ const ShowtimeBooking = () => {
         
       }
       
-
+      
    
   return (
      <div className='w-full h-full flex flex-col gap-5 md:gap-0 md:flex-row items-center'>
         <div className='flex-5'>
-                <div className='w-full'>
-                    <p className=' text-center text-2xl font-bold'> {name}</p>
-                    <p className=' text-center text-mist-700 text-xl'>{genre}</p>
+                <div className='w-full flex items-center'>
+                    <ChevronLeft size={32} onClick={()=>navigate(-1)}/>
+                    <div className='flex items-center gap-4'>
+                          <img
+                                className="h-15 md:h-24"
+                                src={getImageUrl(data?.imagePath)}
+                            />
+                        <div>
+                            <p className='text-xl font-bold'>{data?.title}</p>
+                            <p className=' text-mist-700'>{data?.genre} | {data.duration}mins</p>
+                        </div>
+                       
+                    </div>
                 
                 </div>
             <div className="flex flex-wrap flex-col items-center justify-between mt-10">
@@ -140,7 +153,7 @@ const ShowtimeBooking = () => {
                 <div className='flex gap-5 items-center mt-3'>
                     {row[0]} 
                     <div className='flex gap-3'>
-                        {row[1].map((seat,sid)=><button disabled={seatBookings.includes(seat.id) || seatLocks.includes(seat.id)} onClick={()=>handleSeatPicks(seat.id,index,sid)} className={`border ${seatTypeColor(seat.type)} h-6 w-6 md:h-10 md:w-10 flex items-center justify-center ${seatbg(seat.id)}`}>{seat.number}</button>)}
+                        {row[1].map((seat,sid)=><button disabled={seatBookings.includes(seat.id) || seatLocks.includes(seat.id)} onClick={()=>handleSeatPicks(seat.id,index,sid)} className={`border ${seatTypeColor(seat.type)} h-6 w-6 md:h-10 md:w-10 flex items-center justify-center rounded ${seatbg(seat.id)}`}>{seat.number}</button>)}
                     </div>
                 </div>)}
                 </div>
@@ -188,7 +201,7 @@ const ShowtimeBooking = () => {
                                <p>TOTAL:</p>
                             </div>
                             <div>
-                                ${totalSum}
+                                ${totalSum.toFixed(2)}
                             </div>
                     </div>
                 </div>
