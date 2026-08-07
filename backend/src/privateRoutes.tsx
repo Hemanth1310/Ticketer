@@ -182,19 +182,26 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
     }
 })
 
-// router.delete('/seatLockDelate/:showtimeId/:seatId',async(req,res)=>{
-//     const userId = req.userData?.id
-//     const {showtimeId, seatId} = req.params
+router.delete('/seatLockDelate/:showtimeId/:seatId',async(req,res)=>{
+    const userId = req.userData?.id
+    const {showtimeId, seatId} = req.params
 
-//     if(!userId || !showtimeId || !seatId){
-//         return res.status(405).json({error:"Invalid Request."})
-//     }
+    if(!userId || !showtimeId || !seatId){
+        return res.status(405).json({error:"Invalid Request."})
+    }
 
-//     try{
-//         const deletedLock = await prisma.seatLock.delete({
-
-//         })
-//     }
-// })
+    try{
+        await prisma.seatLock.deleteMany({
+            where:{
+                showtimeId,
+                seatId,
+                userId
+            }
+        })
+       return res.status(200).json({ message: 'Seat unlocked successfully' });
+        } catch (error) {
+            return res.status(500).json({ error: 'Failed to unlock seat' });
+        }
+})
 
 export default router
