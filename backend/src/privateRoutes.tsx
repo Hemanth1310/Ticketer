@@ -121,11 +121,11 @@ router.get("/showtimes/:id",async(req,res)=>{
     }
 })
 
-router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
+router.post(('/seatLock/:showtimeId/:seatId/:expireAt'),async(req,res)=>{
     const userId = req.userData?.id
-    const {showtimeId, seatId} = req.params
+    const {showtimeId, seatId, expireAt} = req.params
 
-    if(!userId || !showtimeId || !seatId){
+    if(!userId || !showtimeId || !seatId || !expireAt){
         return res.status(405).json({error:"Invalid Request."})
     }
 
@@ -148,7 +148,6 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
                 expiresAt: { gt: new Date() }
             }
         })
-        const FIVE_MINS_MS = 5*60*1000
         if(activeLock){
             if(activeLock.userId===userId){
                 await prisma.seatLock.update({
@@ -156,7 +155,7 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
                         id:activeLock.id,
                     },
                     data:{
-                        expiresAt:new Date(Date.now()+FIVE_MINS_MS)
+                        expiresAt:new Date(expireAt)
                     }
                 })
                 return res.status(200).json({message:"Extended time limit for a perticular user."})
@@ -170,7 +169,7 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
             data:{
                 seatId,
                 showtimeId,
-                expiresAt:new Date(Date.now()+FIVE_MINS_MS),
+                expiresAt:new Date(expireAt),
                 userId
             }
         })
