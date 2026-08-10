@@ -33,7 +33,7 @@ const Timer = ({ duration, onExpiry }: Props) => {
     const minutes = Math.floor(sec / 60)
     const seconds = sec % 60
 
-    return <div>{minutes}:{seconds.toString().padStart(2, '0')}</div>
+    return <div className='text-sm md:text-xl'>{minutes}:{seconds.toString().padStart(2, '0')} minutes left to complete booking.</div>
 }
 
 export default Timer
