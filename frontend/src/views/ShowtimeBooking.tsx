@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import type { Seat, ShowTimeData } from '../types'
 import Loading from '../components/layouts/Loading'
@@ -6,12 +6,15 @@ import axios from '../utils/authMiddleware'
 import { ChevronLeft, Clapperboard } from 'lucide-react'
 import { useMovieDetails } from '../utils/hooks/dataQueryHook'
 import getImageUrl from '../utils/getImageURL'
+import Modal from '../components/layouts/Modal'
+import Timer from '../components/layouts/Timer'
 
 const BASE_API_URL = import.meta.env.VITE_API_URL
 
 const ShowtimeBooking = () => {
     const {mid,id} = useParams()
     const { data, isError, isLoading } = useMovieDetails(mid);
+    const timerRef = useRef(0)
     const [showtimeData, setShowTimeData] = useState<ShowTimeData|null>(null)
     const [seatLocks, setSeatLocks] = useState<string[]>([])
     const [seatBookings, setSeatBookings] = useState<string[]>([])
@@ -19,12 +22,18 @@ const ShowtimeBooking = () => {
     const [isCompError, setIsCompError] = useState(false)
     const [seatPicks, setSeatPicks] = useState<string[]>([])
     const [totalSum, setTotalSum] = useState(0)
+    const [isModalOpen, setIsModalOpen] = useState(false)
     const [seatSplits, setSeatSplit] = useState({   
         "SILVER":[],
         "GOLD":[],
         "PLATINUM":[]
     })
      const navigate=useNavigate()
+     const FIVE_MINS_MS = 5*60*1000
+    useEffect(()=>{
+        timerRef.current=Date.now()
+      },[])
+   
     useEffect(()=>{
         const fetchSeatInfo=async()=>{
             setIsCompLoading(true)
@@ -85,7 +94,7 @@ const ShowtimeBooking = () => {
       }
 
     
-      const handleSeatPicks = (id:string,index:number,sid:number)=>{
+      const handleSeatPicks = async(id:string,index:number,sid:number)=>{
 
         if(seatPicks.includes(id)){
              setSeatPicks((prev) =>
@@ -125,24 +134,40 @@ const ShowtimeBooking = () => {
         }
         
       }
-      
-      
+
+      const onExpiry=()=>{
+        setIsModalOpen(true)
+      }
+
+      const onClose=()=>{
+        setIsModalOpen(false)
+        window.location.reload()
+      }
+     
    
   return (
      <div className='w-full h-full flex flex-col gap-5 md:gap-0 md:flex-row items-center'>
         <div className='flex-5'>
-                <div className='w-full flex items-center'>
-                    <ChevronLeft size={32} onClick={()=>navigate(-1)}/>
-                    <div className='flex items-center gap-4'>
-                          <img
-                                className="h-15 md:h-24"
-                                src={getImageUrl(data?.imagePath)}
-                            />
-                        <div>
-                            <p className='text-xl font-bold'>{data?.title}</p>
-                            <p className=' text-mist-700'>{data?.genre} | {data.duration}mins</p>
+                <div className='w-full flex items-center justify-between'>
+                    <div className='flex-1 flex items-center'>
+                        <ChevronLeft size={32} onClick={()=>navigate(-1)}/>
+                        <div className='flex items-center gap-4'>
+                            <img
+                                    className="h-15 md:h-24"
+                                    src={getImageUrl(data?.imagePath)}
+                                />
+                            <div>
+                                <p className='text-xl font-bold'>{data?.title}</p>
+                                <p className=' text-mist-700'>{data?.genre} | {data.duration}mins</p>
+                            </div>
+                        
                         </div>
-                       
+                    </div>
+                    <div className='flex-1'>
+                        <Timer duration={FIVE_MINS_MS} onExpiry={onExpiry}/>
+                    </div>
+                    <div>
+
                     </div>
                 
                 </div>
@@ -219,7 +244,12 @@ const ShowtimeBooking = () => {
                 <p className='text-2xl text-center'>Please select seats to continue.</p>
             </div>}
             
-            
+            <Modal isOpen={isModalOpen} onClose={onClose} title='Session Timeout'>
+                <div className='flex w-full items-center flex-col gap-5'>
+                <p>Your session is timed out</p>
+                <button onClick={onClose} className='p-2 text-xl border-2 border-brand-primary'>Click to restart the session</button>
+                </div>
+            </Modal>
         </div>
     </div>
   )
