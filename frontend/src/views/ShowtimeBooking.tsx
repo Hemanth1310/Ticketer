@@ -23,6 +23,11 @@ const ShowtimeBooking = () => {
     const [seatPicks, setSeatPicks] = useState<string[]>([])
     const [totalSum, setTotalSum] = useState(0)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [catPrices, setCatPrices] = useState({   
+        "SILVER":0,
+        "GOLD":0,
+        "PLATINUM":0
+    })
     const [seatSplits, setSeatSplit] = useState({   
         "SILVER":[],
         "GOLD":[],
@@ -71,6 +76,9 @@ const ShowtimeBooking = () => {
                 map.set(seat.row,[])
             }
             map.get(seat.row)?.push(seat)
+            if(!catPrices[seat.type]){
+                setCatPrices(prev=>({...prev, [seat.type]:seat.price}))
+            }
         })
 
         const sortedSeats = Array.from(map.entries()).sort(([rowA],[rowB])=>rowB.localeCompare(rowA))
@@ -184,6 +192,7 @@ const ShowtimeBooking = () => {
                 </div>
         </div>
         <div className='flex-2 h-2/3 border border-brand-primary rounded-2xl p-5'>
+    
             {seatPicks.length>0 ? <div className='w-full h-full flex flex-col items-center  gap-5'>
             <p className='text-xl font-bold'>Seats Seleted</p>
             <div className='w-full h-1/2 border border-zinc-400 p-5 flex flex-col justify-between'>
@@ -195,7 +204,7 @@ const ShowtimeBooking = () => {
                     {seatSplits.PLATINUM.map((seat,i)=><span>{seat}{seatSplits.PLATINUM.length-1>i && ','}</span>)}
                     </div>
                     <div>
-                       X {seatSplits.PLATINUM.length}
+                       ${catPrices.PLATINUM} X {seatSplits.PLATINUM.length}
                     </div>
                 </div>}
                 {seatSplits.GOLD.length>0 &&
@@ -205,7 +214,7 @@ const ShowtimeBooking = () => {
                     {seatSplits.GOLD.map((seat,i)=><span>{seat}{seatSplits.GOLD.length-1>i && ','}</span>)}
                     </div>
                     <div>
-                       X {seatSplits.GOLD.length}
+                       ${catPrices.GOLD} X {seatSplits.GOLD.length}
                     </div>
                 </div>}
                 {seatSplits.SILVER.length>0 &&
@@ -215,7 +224,7 @@ const ShowtimeBooking = () => {
                     {seatSplits.SILVER.map((seat,i)=><span>{seat}{seatSplits.SILVER.length-1>i && ','}</span>)}
                     </div>
                     <div>
-                       X {seatSplits.SILVER.length}
+                       ${catPrices.SILVER} X {seatSplits.SILVER.length}
                     </div>
                 </div>}
                 </div>
@@ -242,6 +251,22 @@ const ShowtimeBooking = () => {
                 <Clapperboard size={38} color="#BE1A1A"/>
                 <h3 className='text-xl font-bold text-center'>The Abosulte cinema expreience</h3>
                 <p className='text-2xl text-center'>Please select seats to continue.</p>
+                <div className='w-full flex flex-col gap-5'>
+                    <div className={`w-full p-2 flex justify-between border ${seatTypeColor('PLATINUM')}`}>
+
+                        <p>PLATINUM</p>
+                        <p>${catPrices['PLATINUM']}</p>
+                    </div>
+                    <div className={`w-full p-2 flex justify-between border ${seatTypeColor('GOLD')}`}>
+                        <p>GOLD</p>
+                        <p>${catPrices['GOLD']}</p>
+                    </div>
+                    <div className={`w-full p-2 flex justify-between border ${seatTypeColor('SILVER')}`}>
+                        <p>SILVER</p>
+                        <p>${catPrices['SILVER']}</p>
+                    </div>
+
+                </div>
             </div>}
             
             <Modal isOpen={isModalOpen} onClose={onClose} title='Session Timeout'>
