@@ -162,7 +162,12 @@ const ShowtimeBooking = () => {
         
       }
 
-      const onExpiry=()=>{
+      const onExpiry=async()=>{
+        try{
+            await axios.post(`${BASE_API_URL}/api/private/seatLock/cleanup`)
+        }catch{
+            console.log('seat unloack failed')
+        }
         setIsModalOpen(true)
       }
 
