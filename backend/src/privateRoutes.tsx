@@ -121,14 +121,16 @@ router.get("/showtimes/:id",async(req,res)=>{
     }
 })
 
-router.post(('/seatLock/:showtimeId/:seatId/:expireAt'),async(req,res)=>{
+router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
     const userId = req.userData?.id
-    const {showtimeId, seatId, expireAt} = req.params
+    const {showtimeId, seatId} = req.params
 
-    if(!userId || !showtimeId || !seatId || !expireAt){
+    if(!userId || !showtimeId || !seatId){
         return res.status(405).json({error:"Invalid Request."})
     }
 
+    const FIVE_MINS_MS = 5*60*1000
+    const expireAt = Date.now() + FIVE_MINS_MS
     try{
         const existingBooking = await prisma.booking.findFirst({
             where:{
@@ -201,6 +203,27 @@ router.delete('/seatLockDelate/:showtimeId/:seatId',async(req,res)=>{
         } catch (error) {
             return res.status(500).json({ error: 'Failed to unlock seat' });
         }
+})
+
+router.delete('/seatLock/cleanup',async(req, res)=>{
+
+     const userId = req.userData?.id
+
+    if(!userId){
+        return res.status(405).json({error:"Invalid Request."})
+    }
+
+    try{
+        await prisma.seatLock.deleteMany({
+            where:{
+                userId
+            }
+        })
+       return res.status(200).json({ message: 'Seat unlocked successfully' });
+        } catch (error) {
+            return res.status(500).json({ error: 'Failed to unlock seat' });
+        }
+
 })
 
 export default router
