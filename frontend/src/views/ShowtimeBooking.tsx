@@ -9,6 +9,7 @@ import getImageUrl from '../utils/getImageURL'
 import Modal from '../components/layouts/Modal'
 import Timer from '../components/layouts/Timer'
 
+
 const BASE_API_URL = import.meta.env.VITE_API_URL
 
 const ShowtimeBooking = () => {
@@ -23,6 +24,7 @@ const ShowtimeBooking = () => {
     const [seatPicks, setSeatPicks] = useState<string[]>([])
     const [totalSum, setTotalSum] = useState(0)
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isSeatLockModalOpen, setIsSeatLockModalOpen] = useState(false)
     const [catPrices, setCatPrices] = useState({   
         "SILVER":0,
         "GOLD":0,
@@ -108,17 +110,34 @@ const ShowtimeBooking = () => {
              setSeatPicks((prev) =>
                prev.filter((seatId) => seatId !== id)
             );
-              const seat=groupedSeats[index][1][sid]
-            setTotalSum(prev=>prev-seat.price)
-            const seatNum = seat.row+seat.number
-            setSeatSplit(prev=>({...prev,[seat.type]:prev[seat.type].filter(st=>st!==seatNum)}))
-        }else{
+
+            try{
+                await axios.delete(`${BASE_API_URL}/api/private/seatLockDelate/${showtimeData.id}/${id}`)
+                 const seat=groupedSeats[index][1][sid]
+                setTotalSum(prev=>prev-seat.price)
+                const seatNum = seat.row+seat.number
+                setSeatSplit(prev=>({...prev,[seat.type]:prev[seat.type].filter(st=>st!==seatNum)}))
+            
+                }catch{
+                    setIsSeatLockModalOpen(true)
+                }
+           }else{
             setSeatPicks((prev) =>
                [...prev,id]
             );
-            const seat=groupedSeats[index][1][sid]
-            setTotalSum(prev=>prev+seat.price)
-            setSeatSplit(prev=>({...prev,[seat.type]:[...prev[seat.type],seat.row+seat.number]}))
+            try{
+                await axios.post(`${BASE_API_URL}/api/private/seatLock/${showtimeData.id}/${id}`)
+                const seat=groupedSeats[index][1][sid]
+                setTotalSum(prev=>prev+seat.price)
+                setSeatSplit(prev=>({...prev,[seat.type]:[...prev[seat.type],seat.row+seat.number]}))
+            }catch(err){
+                setSeatPicks((prev) =>
+                    prev.filter((seatId) => seatId !== id)
+                );
+                setIsSeatLockModalOpen(true)
+                console.log('Unbale to book please try again later'+err)
+            }
+           
         }
        
         
@@ -273,6 +292,12 @@ const ShowtimeBooking = () => {
                 <div className='flex w-full items-center flex-col gap-5'>
                 <p>Your session is timed out</p>
                 <button onClick={onClose} className='p-2 text-xl border-2 border-brand-primary'>Click to restart the session</button>
+                </div>
+            </Modal>
+             <Modal isOpen={isSeatLockModalOpen} onClose={onClose} title='Unable to process Request'>
+                <div className='flex w-full items-center flex-col gap-5'>
+                <p>Currently unable to process the booking</p>
+                <button onClick={onClose} className='p-2 text-xl border-2 border-brand-primary'>Click to restart the session and try again</button>
                 </div>
             </Modal>
         </div>
