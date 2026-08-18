@@ -96,7 +96,7 @@ const MovieDetails = () => {
 
 
         {data.dates.map((dateData) => (
-          <div>
+          <div key={dateData.date}>
             <h1 className="text-2xl md:text-3xl ">
               {new Date(dateData.date).toDateString()}
             </h1>
