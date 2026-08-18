@@ -209,7 +209,7 @@ const ShowtimeBooking = () => {
                 <div key={row[0]} className='flex gap-5 items-center mt-3'>
                     {row[0]} 
                     <div className='flex gap-3'>
-                        {row[1].map((seat,sid)=><button key={seat.id} disabled={seatBookings.includes(seat.id) || seatLocks.includes(seat.id)} onClick={()=>handleSeatPicks(seat.id,index,sid)} className={`border ${seatTypeColor(seat.type)} h-6 w-6 md:h-10 md:w-10 flex items-center justify-center rounded ${seatbg(seat.id)}`}>{seat.number}</button>)}
+                        {row[1].map((seat,sid)=><button key={seat.id} disabled={seatBookings.includes(seat.id) || seatLocks.includes(seat.id)} onClick={()=>handleSeatPicks(seat.id,index,sid)} className={`border ${seatTypeColor(seat.type)} h-6 w-6 md:h-10 md:w-10 flex items-center justify-center rounded ${seatbg(seat.id)} disabled:bg-mist-300`}>{seat.number}</button>)}
                     </div>
                 </div>)}
                 </div>
