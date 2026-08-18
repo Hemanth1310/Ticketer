@@ -106,8 +106,10 @@ model Booking {
   user       User          @relation(fields: [userId], references: [id])
   showtimeId String
   showtime   Showtime      @relation(fields: [showtimeId], references: [id])
-  seatId     String
-  seat       Seat          @relation(fields: [seatId], references: [id])
+
+  // Relations to multiple seats
+  seats          Seat[]        // Implicit many-to-many OR join table
+  
   ticketPrice    Decimal   @db.Decimal(10, 2) // Seat base price + tier multiplier
   convenienceFee Decimal   @default(1.50) @db.Decimal(10, 2)
   totalAmount    Decimal   @db.Decimal(10, 2)
