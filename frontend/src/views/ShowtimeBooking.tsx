@@ -52,12 +52,12 @@ const ShowtimeBooking = () => {
                     setShowTimeData(data.payload?.showtimes as ShowTimeData)
                 }
 
-               if(data.payload?.seatBookings){
-                    setSeatBookings(data.payload?.seatBookings as string[])
+               if(data.payload?.arrOfSeatBookings){
+                    setSeatBookings(data.payload?.arrOfSeatBookings as string[])
                 }
 
-                if(data.payload?.seatLocks){
-                    setSeatLocks(data.payload?.seatLocks as string[])
+                if(data.payload?.arrOfSeatLocks){
+                    setSeatLocks(data.payload?.arrOfSeatLocks as string[])
                 }
 
                 console.log(data)
@@ -176,7 +176,6 @@ const ShowtimeBooking = () => {
         window.location.reload()
       }
      
-   
   return (
      <div className='w-full h-full flex flex-col gap-5 md:gap-0 md:flex-row items-center'>
         <div className='flex-5'>
