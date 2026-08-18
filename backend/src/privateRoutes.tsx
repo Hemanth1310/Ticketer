@@ -137,14 +137,17 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
     const FIVE_MINS_MS = 5*60*1000
     const expireAt = Date.now() + FIVE_MINS_MS
     try{
-        const existingBooking = await prisma.booking.findFirst({
+        const existingBooking = await prisma.booking.findMany({
             where:{
-                seatId,
                 showtimeId
+            },select:{
+                seats:true
             }
         })
 
-        if(existingBooking){
+        const arrOfBookedSeats = existingBooking.flatMap(booking=>booking.seats.map(s=>s.id))
+
+        if(arrOfBookedSeats.includes(seatId)){
             return res.status(409).json({ error: 'Seat is already booked.' });
         }
 
