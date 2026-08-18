@@ -1,6 +1,7 @@
 import express from 'express'
 import { prisma } from './prisma.js'
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace.js'
+import { includes } from 'zod'
 
 const router = express.Router()
 
@@ -81,12 +82,15 @@ router.get("/showtimes/:id",async(req,res)=>{
 
         const seatBookings = await prisma.booking.findMany({
             select:{
-               seatId:true
+               seats:true
             },
              where:{
                 showtimeId:id
              }
         })
+
+        const arrOfSeatBookings = seatBookings.flatMap(booking=>booking.seats.map(s=>s.id))
+
 
         const seatLocks = await prisma.seatLock.findMany({
             where:{
@@ -97,6 +101,7 @@ router.get("/showtimes/:id",async(req,res)=>{
             }
         })
 
+        const arrOfSeatLocks = seatLocks.flatMap(lock=>lock.seatId)
 
         return res.status(200).json({
             payload:{
@@ -107,8 +112,8 @@ router.get("/showtimes/:id",async(req,res)=>{
                         seats:seatsWithPrices
                     }
                 },
-                seatBookings,
-                seatLocks
+                arrOfSeatBookings,
+                arrOfSeatLocks
             }
         })
     }catch(err){
