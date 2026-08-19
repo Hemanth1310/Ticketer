@@ -6,6 +6,7 @@ import { ToastContainer } from "react-toastify";
 import MovieDetails from "./views/MovieDetails";
 import ShowtimeBooking from "./views/ShowtimeBooking";
 import ProtectedRoutes from "./components/layouts/ProtectedRoutes";
+import Checkout from "./views/Checkout";
 
 function App() {
   return (
@@ -21,6 +22,10 @@ function App() {
                 <Route
                   path="/book-show-time/:mid/:id"
                   element={<ShowtimeBooking />}
+                />
+                 <Route
+                  path="/checkout/:bookingId"
+                  element={<Checkout/>}
                 />
               </Route>
             </Routes>
