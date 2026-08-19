@@ -1,7 +1,6 @@
 import express from 'express'
 import { prisma } from './prisma.js'
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace.js'
-import { includes } from 'zod'
 
 const router = express.Router()
 
@@ -233,5 +232,75 @@ router.delete('/seatLock/cleanup',async(req, res)=>{
         }
 
 })
+
+router.post('/reserveBooking/:showtimeId',async(req,res)=>{
+    const {seatIds, ticketPrice, convenienceFee, totalAmount} = req.body 
+    const userId = req.userData?.id
+    const showtimeId = req.params.showtimeId
+
+    if(!seatIds || !ticketPrice || !convenienceFee || !totalAmount || !userId || !showtimeId){
+        return res.status(405).json({error:"Invalid Request."})
+    }
+
+    try{
+        const booking = await prisma.booking.create({
+            data:{
+                userId,
+                ticketPrice,
+                convenienceFee,
+                totalAmount,
+                showtimeId,
+                seats: {
+                    connect: seatIds.map((id:string) => ({ id })),
+                    },
+            },
+            include:{
+                seats:true
+            }
+        })
+
+        if(!booking){
+            return res.status(409).json({error:'Booking not possible'})
+        }
+
+        return res.json({message:'Booking Initiated', payload:{bookingId:booking.id}})
+    }catch(err){
+        console.error('Booking error:', err);
+        return res.status(500).json({ error: 'Failed to lock hold booking' });
+    }
+
+})
+
+// router.post('/bookingDetails/:bookingId',async(req,res)=>{
+//     const {bookingId} = req.params
+
+//     if(!bookingId){
+//         return res.status(405).json({error:"Invalid Request."})
+//     }
+
+//     try{
+//         const bookingDetails = await prisma.booking.findUnique({
+//             where:{
+//                 id:bookingId
+//             },
+//             include:{
+//                 seats:true,
+//                 showtime:true
+//             }
+//         })
+//         if(!bookingDetails){
+//              return res.status(409).json({error:'Booking Details not found'})
+//         }
+
+//         return res.json({
+//             payload:{
+//                 bookingDetails
+//             }
+//         })
+//     }catch(err){
+//         console.error('Booking not found:', err);
+//         return res.status(500).json({ error: 'Failed to find booking' });
+//     }
+// })
 
 export default router
