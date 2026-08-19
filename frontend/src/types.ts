@@ -70,4 +70,26 @@ export type ShowTimeData = {
   movieId:string,
   screenId:string,
   screen:ScreenWithSeats
+}
+
+export type Showtime = {
+      id: string;
+      screenId: string;
+      startTime: Date;
+      movieId: string;
+      basePrice: number;
+}
+
+export type bookingDetails= {
+    id: string;
+    userId: string;
+    showtimeId: string;
+    ticketPrice: number;
+    convenienceFee: number;
+    totalAmount: number;
+    paymentId: string | null;
+    bookedAt: string|Date;
+    status: number;
+    seats:Seat[];
+    showtime:Showtime
 } 
