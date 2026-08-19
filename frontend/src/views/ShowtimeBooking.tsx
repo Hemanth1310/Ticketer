@@ -11,6 +11,7 @@ import Timer from '../components/layouts/Timer'
 
 
 const BASE_API_URL = import.meta.env.VITE_API_URL
+const convenienceFee = 1.50
 
 const ShowtimeBooking = () => {
     const {mid,id} = useParams()
@@ -25,6 +26,7 @@ const ShowtimeBooking = () => {
     const [totalSum, setTotalSum] = useState(0)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isSeatLockModalOpen, setIsSeatLockModalOpen] = useState(false)
+    const [isBookingInit, setIsBookingInit] = useState(false)
     const [catPrices, setCatPrices] = useState({   
         "SILVER":0,
         "GOLD":0,
@@ -141,6 +143,27 @@ const ShowtimeBooking = () => {
         }
        
         
+      }
+
+      const handleProceedToCheckOut=async()=>{
+        setIsBookingInit(true)
+            try{
+                const {data} = await axios.post(`${BASE_API_URL}/api/private/reserveBooking/${showtimeData.id}`,{
+                    seatIds:seatPicks, 
+                    ticketPrice:totalSum, 
+                    convenienceFee, 
+                    totalAmount:totalSum+convenienceFee
+                })
+                if(!data){
+                    throw new Error()
+                }
+                navigate(`/checkout/${data.payload?.bookingId}`)
+            }catch{
+                console.log('Unable to Proceed')
+                navigate('/')
+            } finally{
+                setIsBookingInit(false)
+            }  
       }
       
       const seatbg=(id:string)=>{
@@ -265,7 +288,9 @@ const ShowtimeBooking = () => {
             </div>
             <div className=' flex-1 h-full flex flex-col justify-between'>
                 <p>*The amount excludes CONVENIENCE_FEE</p>
-            <button className='h-10 w-full bg-brand-primary text-white'>Check and pay</button>
+            <button disabled={isBookingInit} onClick={handleProceedToCheckOut} className='h-10 w-full bg-brand-primary text-white'>
+                Check and pay
+            </button>
            
             </div>
             
@@ -301,7 +326,9 @@ const ShowtimeBooking = () => {
              <Modal isOpen={isSeatLockModalOpen} onClose={onClose} title='Unable to process Request'>
                 <div className='flex w-full items-center flex-col gap-5'>
                 <p>Currently unable to process the booking</p>
-                <button onClick={onClose} className='p-2 text-xl border-2 border-brand-primary'>Click to restart the session and try again</button>
+                <button onClick={onClose} className='p-2 text-xl border-2 border-brand-primary'>
+                    Click to restart the session and try again
+                </button>
                 </div>
             </Modal>
         </div>
