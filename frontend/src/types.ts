@@ -78,9 +78,38 @@ export type Showtime = {
       startTime: Date;
       movieId: string;
       basePrice: number;
+      movie:Movies
 }
 
-export type bookingDetails= {
+type BookingStatus = "PENDING_PAYMENT" | "CONFIRMED" | "CANCELLED" | "FAILED"
+
+
+export type BookingDetails= {
+    seats: {
+        number: number;
+        id: string;
+        screenId: string;
+        row: string;
+        type: SeatTypes;
+    }[];
+    location: string;
+    theater: string;
+    showtime: {
+        id: string;
+        startTime: Date;
+        movieId: string;
+        screenId: string;
+        basePrice: number;
+    };
+    movie: {
+        id: string;
+        title: string;
+        description: string | null;
+        genre: Genre;
+        duration: number;
+        imagePath: string;
+        featured: boolean;
+    };
     id: string;
     userId: string;
     showtimeId: string;
@@ -88,8 +117,7 @@ export type bookingDetails= {
     convenienceFee: number;
     totalAmount: number;
     paymentId: string | null;
-    bookedAt: string|Date;
-    status: number;
-    seats:Seat[];
-    showtime:Showtime
-} 
+    bookedAt: Date;
+    status: BookingStatus;
+    screen:string;
+}
