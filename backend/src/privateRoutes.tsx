@@ -84,7 +84,8 @@ router.get("/showtimes/:id",async(req,res)=>{
                seats:true
             },
              where:{
-                showtimeId:id
+                showtimeId:id,
+                status:'CONFIRMED'
              }
         })
 
@@ -138,7 +139,8 @@ router.post(('/seatLock/:showtimeId/:seatId'),async(req,res)=>{
     try{
         const existingBooking = await prisma.booking.findMany({
             where:{
-                showtimeId
+                showtimeId,
+                status:'CONFIRMED'
             },select:{
                 seats:true
             }
@@ -271,36 +273,46 @@ router.post('/reserveBooking/:showtimeId',async(req,res)=>{
 
 })
 
-// router.post('/bookingDetails/:bookingId',async(req,res)=>{
-//     const {bookingId} = req.params
+router.get('/bookingDetails/:bookingId',async(req,res)=>{
+    const {bookingId} = req.params
 
-//     if(!bookingId){
-//         return res.status(405).json({error:"Invalid Request."})
-//     }
+    if(!bookingId){
+        return res.status(405).json({error:"Invalid Request."})
+    }
 
-//     try{
-//         const bookingDetails = await prisma.booking.findUnique({
-//             where:{
-//                 id:bookingId
-//             },
-//             include:{
-//                 seats:true,
-//                 showtime:true
-//             }
-//         })
-//         if(!bookingDetails){
-//              return res.status(409).json({error:'Booking Details not found'})
-//         }
-
-//         return res.json({
-//             payload:{
-//                 bookingDetails
-//             }
-//         })
-//     }catch(err){
-//         console.error('Booking not found:', err);
-//         return res.status(500).json({ error: 'Failed to find booking' });
-//     }
-// })
+    try{
+        const bookingDetails = await prisma.booking.findUnique({
+            where:{
+                id:bookingId
+            },
+            include:{
+                seats:true,
+                showtime:{
+                    include:{
+                        movie:true,
+                        screen:{
+                            include:{
+                                theater:true
+                            }
+                        }
+                    }
+                },
+                
+            }
+        })
+        if(!bookingDetails){
+             return res.status(409).json({error:'Booking Details not found'})
+        }
+        console.log(bookingDetails)
+        return res.json({
+            payload:{
+                bookingDetails
+            }
+        })
+    }catch(err){
+        console.error('Booking not found:', err);
+        return res.status(500).json({ error: 'Failed to find booking' });
+    }
+})
 
 export default router
