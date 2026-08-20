@@ -4,10 +4,10 @@ import type { BookingDetails } from '../types'
 import Loading from '../components/layouts/Loading'
 import axios from '../utils/authMiddleware'
 import getImageUrl from '../utils/getImageURL'
-import Modal from '../components/layouts/Modal'
+
 const BASE_API_URL = import.meta.env.VITE_API_URL
 
-const BookingDetails = () => {
+const BookingConfirmationDetails = () => {
     const {bookingId} = useParams()
       const [bookingDetails, setBookingDetails] =  useState<BookingDetails|null>(null)
         const [isLoading, setIsLoading] = useState(false)
@@ -100,4 +100,4 @@ const BookingDetails = () => {
   )
 }
 
-export default BookingDetails
+export default BookingConfirmationDetails

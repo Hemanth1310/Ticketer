@@ -7,7 +7,7 @@ import MovieDetails from "./views/MovieDetails";
 import ShowtimeBooking from "./views/ShowtimeBooking";
 import ProtectedRoutes from "./components/layouts/ProtectedRoutes";
 import Checkout from "./views/Checkout";
-import BookingDetails from "./views/BookingDetails";
+import BookingConfirmationDetails from "./views/BookingDetails";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
                 />
                   <Route
                   path="/booking-details/:bookingId"
-                  element={<BookingDetails/>}
+                  element={<BookingConfirmationDetails/>}
                 />
               </Route>
             </Routes>
